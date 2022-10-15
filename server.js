@@ -1,4 +1,8 @@
 const dgram = require('dgram');
+const ip = require('ip');
+
+const LOCAL_IP = ip.address();
+const LOCAL_IP_INT = ip2int(LOCAL_IP);
 
 const PRIMARY_PORT = 10025;
 const SECONDARY_PORT = 10125;
@@ -80,7 +84,7 @@ function handleMessageType101(message, rinfo) {
 	response.writeUInt32BE(id, 0);
 	response.writeUInt32BE(port, 4);
 	response.writeUInt32BE(ip2int(address), 8);
-	response.writeUInt32BE(0, 12);
+	response.writeUInt32BE(LOCAL_IP_INT, 12);
 
 	PRIMARY_SOCKET.send(response, port, address);
 }
@@ -94,7 +98,7 @@ function handleMessageType102(message, rinfo) {
 	response.writeUInt32BE(id, 0);
 	response.writeUInt32BE(port, 4);
 	response.writeUInt32BE(ip2int(address), 8);
-	response.writeUInt32BE(0, 12);
+	response.writeUInt32BE(LOCAL_IP_INT, 12);
 
 	SECONDARY_SOCKET.send(response, port, address);
 }
@@ -108,7 +112,7 @@ function handleMessageType103(message, rinfo) {
 	response.writeUInt32BE(id, 0);
 	response.writeUInt32BE(port, 4);
 	response.writeUInt32BE(ip2int(address), 8);
-	response.writeUInt32BE(0, 12);
+	response.writeUInt32BE(LOCAL_IP_INT, 12);
 
 	PRIMARY_SOCKET.send(response, port, address);
 }
