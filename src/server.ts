@@ -31,6 +31,8 @@ const LOCAL_IP_INT = ip2int(LOCAL_IP);
 
 const PRIMARY_PORT = 10025;
 const SECONDARY_PORT = 10125;
+const UNKNOWN_PORT_33334 = 33334; // * Unknown uses
+const UNKNOWN_PORT_33335 = 33335; // * Unknown uses
 
 const PRIMARY_SOCKET_NNCS1 = dgram.createSocket('udp4');
 const PRIMARY_SOCKET_NNCS2 = dgram.createSocket('udp4');
@@ -41,6 +43,11 @@ const SECONDARY_SOCKET_NNCS2 = dgram.createSocket('udp4');
 // * create "alternate" sockets for these message types
 const ALTERNATE_SOCKET_NNCS1 = dgram.createSocket('udp4');
 const ALTERNATE_SOCKET_NNCS2 = dgram.createSocket('udp4');
+
+// * NNCS1 gets messages on 2 ports with unknown uses. Just sinkholing them for now
+// * so the client knows the ports are reachable
+const PORT_33334_SOCKET = dgram.createSocket('udp4');
+const PORT_33335_SOCKET = dgram.createSocket('udp4');
 
 const HANDLERS: Record<number, (message: any, rinfo: dgram.RemoteInfo, socket: dgram.Socket) => void> = {
 	1: handleMessageType1,
@@ -59,11 +66,27 @@ SECONDARY_SOCKET_NNCS1.bind(SECONDARY_PORT, NNCS1_IP_ADDRESS);
 SECONDARY_SOCKET_NNCS2.bind(SECONDARY_PORT, NNCS2_IP_ADDRESS);
 ALTERNATE_SOCKET_NNCS1.bind(0, NNCS1_IP_ADDRESS); // * Let the OS assign a random port
 ALTERNATE_SOCKET_NNCS2.bind(0, NNCS2_IP_ADDRESS); // * Let the OS assign a random port
+PORT_33334_SOCKET.bind(UNKNOWN_PORT_33334, NNCS1_IP_ADDRESS);
+PORT_33335_SOCKET.bind(UNKNOWN_PORT_33335, NNCS1_IP_ADDRESS);
 
 [PRIMARY_SOCKET_NNCS1, PRIMARY_SOCKET_NNCS2, SECONDARY_SOCKET_NNCS1, SECONDARY_SOCKET_NNCS2].forEach((socket) => {
 	socket.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {
 		handleMessage(msg, rinfo, socket);
 	});
+});
+
+PORT_33334_SOCKET.on('message', (_msg: Buffer, _rinfo: dgram.RemoteInfo) => {
+	// * Do nothing, should be 16 null bytes. Just sinkhole it so the client knows the port is reachable
+});
+
+PORT_33335_SOCKET.on('message', (_msg: Buffer, _rinfo: dgram.RemoteInfo) => {
+	// * Do nothing, just sinkhole it so the client knows the port is reachable.
+	// * Seems to always be 56 bytes of mostly static data
+	// * Bytes 0-7 seem to never change
+	// * Bytes 8-13 seem to change, but not by much
+	// * Bytes 14-39 seem to never change, and contains the ASCII string "Dummy"
+	// * Bytes 40-55 Seem to change, maybe a hash like MD5? I couldn't find any combination of the message bytes that made this value though
+	// TODO - Consume this?
 });
 
 function getLocalIPAddress(): string {
