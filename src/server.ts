@@ -1,7 +1,7 @@
-import dgram from 'dgram';
-import ip from 'ip';
+import os from 'node:os';
+import dgram from 'node:dgram';
 
-const LOCAL_IP = ip.address();
+const LOCAL_IP = getLocalIPAddress();
 const LOCAL_IP_INT = ip2int(LOCAL_IP);
 
 const PRIMARY_PORT = 10025;
@@ -32,6 +32,20 @@ type NATMessage = {
 	externalAddress: number;
 	localAddress: number;
 };
+
+function getLocalIPAddress(): string {
+	const networkInterfaces = os.networkInterfaces();
+
+	for (const interfaceName in networkInterfaces) {
+		for (const interfaceInfo of networkInterfaces[interfaceName]!) {
+			if (interfaceInfo.family === 'IPv4' && !interfaceInfo.internal) {
+				return interfaceInfo.address;
+			}
+		}
+	}
+
+	return '127.0.0.1';
+}
 
 function handleMessage(msg: Buffer, rinfo: dgram.RemoteInfo): void {
 	const message = {
