@@ -1,6 +1,13 @@
 import os from 'node:os';
 import dgram from 'node:dgram';
 
+type NATMessage = {
+	type: number;
+	externalPort: number;
+	externalAddress: number;
+	localAddress: number;
+};
+
 const LOCAL_IP = getLocalIPAddress();
 const LOCAL_IP_INT = ip2int(LOCAL_IP);
 
@@ -9,11 +16,6 @@ const SECONDARY_PORT = 10125;
 
 const PRIMARY_SOCKET = dgram.createSocket('udp4');
 const SECONDARY_SOCKET = dgram.createSocket('udp4');
-
-PRIMARY_SOCKET.bind(PRIMARY_PORT);
-SECONDARY_SOCKET.bind(SECONDARY_PORT);
-
-PRIMARY_SOCKET.on('message', handleMessage);
 
 const HANDLERS: Record<number, (message: any, rinfo: dgram.RemoteInfo) => void> = {
 	1: handleMessageType1,
@@ -26,12 +28,10 @@ const HANDLERS: Record<number, (message: any, rinfo: dgram.RemoteInfo) => void> 
 	103: handleMessageType103
 };
 
-type NATMessage = {
-	type: number;
-	externalPort: number;
-	externalAddress: number;
-	localAddress: number;
-};
+PRIMARY_SOCKET.bind(PRIMARY_PORT);
+SECONDARY_SOCKET.bind(SECONDARY_PORT);
+
+PRIMARY_SOCKET.on('message', handleMessage);
 
 function getLocalIPAddress(): string {
 	const networkInterfaces = os.networkInterfaces();
