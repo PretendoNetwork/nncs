@@ -124,10 +124,6 @@ function handleMessageType103(message: NATMessage, rinfo: dgram.RemoteInfo): voi
 	PRIMARY_SOCKET.send(response, port, address);
 }
 
-function int2ip(int: number): string {
-	return `${int >>> 24}.${int >> 16 & 255}.${int >> 8 & 255}.${int & 255}`;
-}
-
 function ip2int(ip: string): number {
 	return Buffer.from(ip.split('.').map(Number)).readUInt32BE();
 }
