@@ -23,7 +23,7 @@ const HANDLERS: Record<number, (message: any, rinfo: dgram.RemoteInfo) => void> 
 	5: handleMessageType5,
 	101: handleMessageType101,
 	102: handleMessageType102,
-	103: handleMessageType103,
+	103: handleMessageType103
 };
 
 type NATMessage = {
@@ -50,7 +50,7 @@ function handleMessage(msg: Buffer, rinfo: dgram.RemoteInfo): void {
 	handler(message, rinfo);
 }
 
-function handleMessageType1(message: NATMessage, rinfo: dgram.RemoteInfo): void {
+function handleMessageType1(_message: NATMessage, _rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	// * NEX uses this to check if the NAT check server is reachable at all,
 	// * to measure the time that it takes to receive a response,
@@ -58,25 +58,25 @@ function handleMessageType1(message: NATMessage, rinfo: dgram.RemoteInfo): void 
 	// TODO - Implement this
 }
 
-function handleMessageType2(message: NATMessage, rinfo: dgram.RemoteInfo): void {
+function handleMessageType2(_message: NATMessage, _rinfo: dgram.RemoteInfo): void {
 	// * The server replies from a different IP address and port.
 	// * NEX uses this to determine the NAT filtering mode.
 	// TODO - Implement this
 }
 
-function handleMessageType3(message: NATMessage, rinfo: dgram.RemoteInfo): void {
+function handleMessageType3(_message: NATMessage, _rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address but from a different port.
 	// * NEX uses this to determine the NAT filtering mode.
 	// TODO - Implement this
 }
 
-function handleMessageType4(message: NATMessage, rinfo: dgram.RemoteInfo): void {
+function handleMessageType4(_message: NATMessage, _rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	// * NEX uses this to determine the NAT mapping mode.
 	// TODO - Implement this
 }
 
-function handleMessageType5(message: NATMessage, rinfo: dgram.RemoteInfo): void {
+function handleMessageType5(_message: NATMessage, _rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	// * NEX uses this to determine the NAT mapping mode.
 	// TODO - Implement this
