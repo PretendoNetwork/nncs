@@ -1,5 +1,5 @@
-const dgram = require('dgram');
-const ip = require('ip');
+import dgram from 'dgram';
+import ip from 'ip';
 
 const LOCAL_IP = ip.address();
 const LOCAL_IP_INT = ip2int(LOCAL_IP);
@@ -7,15 +7,15 @@ const LOCAL_IP_INT = ip2int(LOCAL_IP);
 const PRIMARY_PORT = 10025;
 const SECONDARY_PORT = 10125;
 
-PRIMARY_SOCKET = dgram.createSocket('udp4');
-SECONDARY_SOCKET = dgram.createSocket('udp4');
+const PRIMARY_SOCKET = dgram.createSocket('udp4');
+const SECONDARY_SOCKET = dgram.createSocket('udp4');
 
 PRIMARY_SOCKET.bind(PRIMARY_PORT);
 SECONDARY_SOCKET.bind(SECONDARY_PORT);
 
 PRIMARY_SOCKET.on('message', handleMessage);
 
-const HANDLERS = {
+const HANDLERS: Record<number, (message: any, rinfo: dgram.RemoteInfo) => void> = {
 	1: handleMessageType1,
 	2: handleMessageType2,
 	3: handleMessageType3,
@@ -26,7 +26,14 @@ const HANDLERS = {
 	103: handleMessageType103,
 };
 
-function handleMessage(msg, rinfo) {
+type NATMessage = {
+	type: number;
+	externalPort: number;
+	externalAddress: number;
+	localAddress: number;
+};
+
+function handleMessage(msg: Buffer, rinfo: dgram.RemoteInfo): void {
 	const message = {
 		type: msg.readUInt32BE(),
 		externalPort: msg.readUInt32BE(),
@@ -43,7 +50,7 @@ function handleMessage(msg, rinfo) {
 	handler(message, rinfo);
 }
 
-function handleMessageType1(message, rinfo) {
+function handleMessageType1(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	// * NEX uses this to check if the NAT check server is reachable at all,
 	// * to measure the time that it takes to receive a response,
@@ -51,37 +58,37 @@ function handleMessageType1(message, rinfo) {
 	// TODO - Implement this
 }
 
-function handleMessageType2(message, rinfo) {
+function handleMessageType2(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from a different IP address and port.
 	// * NEX uses this to determine the NAT filtering mode.
 	// TODO - Implement this
 }
 
-function handleMessageType3(message, rinfo) {
+function handleMessageType3(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address but from a different port.
 	// * NEX uses this to determine the NAT filtering mode.
 	// TODO - Implement this
 }
 
-function handleMessageType4(message, rinfo) {
+function handleMessageType4(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	// * NEX uses this to determine the NAT mapping mode.
 	// TODO - Implement this
 }
 
-function handleMessageType5(message, rinfo) {
+function handleMessageType5(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	// * NEX uses this to determine the NAT mapping mode.
 	// TODO - Implement this
 }
 
-function handleMessageType101(message, rinfo) {
+function handleMessageType101(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	const { address, port } = rinfo;
 
 	const response = Buffer.alloc(16);
 
-	response.writeUInt32BE(id, 0);
+	response.writeUInt32BE(message.type, 0);
 	response.writeUInt32BE(port, 4);
 	response.writeUInt32BE(ip2int(address), 8);
 	response.writeUInt32BE(LOCAL_IP_INT, 12);
@@ -89,13 +96,13 @@ function handleMessageType101(message, rinfo) {
 	PRIMARY_SOCKET.send(response, port, address);
 }
 
-function handleMessageType102(message, rinfo) {
+function handleMessageType102(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address but from a different port.
 	const { address, port } = rinfo;
 
 	const response = Buffer.alloc(16);
 
-	response.writeUInt32BE(id, 0);
+	response.writeUInt32BE(message.type, 0);
 	response.writeUInt32BE(port, 4);
 	response.writeUInt32BE(ip2int(address), 8);
 	response.writeUInt32BE(LOCAL_IP_INT, 12);
@@ -103,13 +110,13 @@ function handleMessageType102(message, rinfo) {
 	SECONDARY_SOCKET.send(response, port, address);
 }
 
-function handleMessageType103(message, rinfo) {
+function handleMessageType103(message: NATMessage, rinfo: dgram.RemoteInfo): void {
 	// * The server replies from its regular IP address and port.
 	const { address, port } = rinfo;
 
 	const response = Buffer.alloc(16);
 
-	response.writeUInt32BE(id, 0);
+	response.writeUInt32BE(message.type, 0);
 	response.writeUInt32BE(port, 4);
 	response.writeUInt32BE(ip2int(address), 8);
 	response.writeUInt32BE(LOCAL_IP_INT, 12);
@@ -117,10 +124,10 @@ function handleMessageType103(message, rinfo) {
 	PRIMARY_SOCKET.send(response, port, address);
 }
 
-function int2ip(int) {
+function int2ip(int: number): string {
 	return `${int >>> 24}.${int >> 16 & 255}.${int >> 8 & 255}.${int & 255}`;
 }
 
-function ip2int(ip) {
-	return Buffer.from(ip.split('.')).readUInt32BE();
+function ip2int(ip: string): number {
+	return Buffer.from(ip.split('.').map(Number)).readUInt32BE();
 }

@@ -2,15 +2,23 @@
   "name": "nncs",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "dev": "tsup --watch --onSuccess \"node dist/server.js\"",
+    "build": "tsup && tsc --noEmit",
+    "start": "node --enable-source-maps dist/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "ip": "^1.1.8"
+  },
+  "devDependencies": {
+    "@types/ip": "^1.1.3",
+    "@types/node": "^24.9.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3"
   }
 }
