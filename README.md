@@ -24,7 +24,8 @@ Clients can also be seen sending messages to port `33334` and `33335` of NNCS1, 
 
 Configurations are loaded through environment variables. `.env` files are supported. IP addresses are assumed to be pointing at the same server, though they must be different IP addresses, so both are required.
 
-| Environment variable  | Description                     |
-| --------------------- | ------------------------------- |
-| `PN_NNCS1_IP_ADDRESS` | IP address for the NNCS1 server |
-| `PN_NNCS2_IP_ADDRESS` | IP address for the NNCS2 server |
+| Environment variable       | Description                                                                                                                                                                                                                               | Required |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `PN_NNCS1_IP_ADDRESS`      | IP address for the NNCS1 server                                                                                                                                                                                                           | Yes      |
+| `PN_NNCS2_IP_ADDRESS`      | IP address for the NNCS2 server                                                                                                                                                                                                           | Yes      |
+| `PN_NNCS_LOCAL_IP_ADDRESS` | Local IPv4 address of the server. If not set or is not a valid IPv4 address, the server will use the first private IPv4 address it can find. If a private IPv4 cannot be found and one is not set, the system will default to `127.0.0.1` | No       |

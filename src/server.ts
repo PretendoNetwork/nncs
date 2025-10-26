@@ -1,3 +1,4 @@
+import net from 'node:net';
 import os from 'node:os';
 import dgram from 'node:dgram';
 import 'dotenv/config';
@@ -26,8 +27,8 @@ if (NNCS1_IP_ADDRESS === NNCS2_IP_ADDRESS) {
 	throw new Error('PN_NNCS1_IP_ADDRESS and PN_NNCS2_IP_ADDRESS may not be the same address. Must use 2 different public IP addresses');
 }
 
-const LOCAL_IP = getLocalIPAddress();
-const LOCAL_IP_INT = ip2int(LOCAL_IP);
+const LOCAL_IP_ADDRESS = getLocalIPAddress();
+const LOCAL_IP_INT = ip2int(LOCAL_IP_ADDRESS);
 
 const PRIMARY_PORT = 10025;
 const SECONDARY_PORT = 10125;
@@ -90,6 +91,10 @@ PORT_33335_SOCKET.on('message', (_msg: Buffer, _rinfo: dgram.RemoteInfo) => {
 });
 
 function getLocalIPAddress(): string {
+	if (process.env.PN_NNCS_LOCAL_IP_ADDRESS?.trim() && net.isIPv4(process.env.PN_NNCS_LOCAL_IP_ADDRESS)) {
+		return process.env.PN_NNCS_LOCAL_IP_ADDRESS;
+	}
+
 	const networkInterfaces = os.networkInterfaces();
 
 	for (const interfaceName in networkInterfaces) {
